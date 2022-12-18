@@ -1,0 +1,37 @@
+[
+    {
+        "listName": "Je suis / Sono",
+        "listWords": [
+            { "wordFR": "français", "wordIT": "francese" },
+            { "wordFR": "jeune", "wordIT": "giovane" },
+            { "wordFR": "étranger", "wordIT": "straniero" },
+            { "wordFR": "étrangère", "wordIT": "straniera" },
+            { "wordFR": "fatigué", "wordIT": "stanco" },
+            { "wordFR": "fatiguée (féminim)", "wordIT": "stanca" },
+            { "wordFR": "content", "wordIT": "contento" },
+            { "wordFR": "contente", "wordIT": "contenta" },
+            { "wordFR": "étonné", "wordIT": "stupido" },
+            { "wordFR": "étonnée (féminim)", "wordIT": "stupida" },
+            { "wordFR": "vieux", "wordIT": "vecchio" },
+            { "wordFR": "vielle", "wordIT": "vecchia" },
+            { "wordFR": "désolé", "wordIT": "dispiaciuto" },
+            { "wordFR": "désolée (féminim)", "wordIT": "dispiaciuta" },
+            { "wordFR": "malade", "wordIT": "ammalato" },
+            { "wordFR": "malade (féminim)", "wordIT": "ammalata" },
+            { "wordFR": "je suis mal", "wordIT": "sto male" },
+            { "wordFR": "intéressé", "wordIT": "interessato" },
+            { "wordFR": "intéressée (féminim)", "wordIT": "interessata" },
+            { "wordFR": "ça m'intéresse", "wordIT": "mi interessa" },
+            { "wordFR": "étudiant", "wordIT": "studente" },
+            { "wordFR": "étudiante", "wordIT": "studentessa" },
+            { "wordFR": "médecin", "wordIT": "medico" },
+            { "wordFR": "avocat", "wordIT": "avvocato" },
+            { "wordFR": "en forme", "wordIT": "in forma" },
+            { "wordFR": "je suis bien", "wordIT": "sto bene" },
+            { "wordFR": "en avance", "wordIT": "in anticipo" },
+            { "wordFR": "en retard", "wordIT": "in ritardo" },
+            { "wordFR": "en voyage", "wordIT": "in viaggio" },
+            { "wordFR": "en vacance", "wordIT": "in vacanza" }
+        ]
+    }
+]
