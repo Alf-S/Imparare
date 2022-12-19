@@ -99,7 +99,7 @@ class _HomePage extends State<HomePage> {
         title: 'App translate',
         home: Scaffold(
             appBar: AppBar(
-                title: const Text('App translate'),
+                title: const Text('HomePage'),
                 backgroundColor: const Color(0xFF009247)),
             body: Column(
               children: [

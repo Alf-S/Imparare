@@ -176,7 +176,7 @@ class _ListPage extends State<ListsPage> {
         title: 'App translate',
         home: Scaffold(
             appBar: AppBar(
-              title: const Text('ListPage Test'),
+              title: const Text('ListPage'),
               backgroundColor: col_flagGreen,
               actions: <Widget>[
                 TextButton(
