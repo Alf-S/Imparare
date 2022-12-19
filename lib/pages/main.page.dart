@@ -3,6 +3,7 @@ import 'package:app_italien/models/wordsList.model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 class MainPage extends StatefulWidget {
@@ -28,11 +29,13 @@ class _MainPage extends State<MainPage> {
   final FlutterTts ftts = FlutterTts();
   final SpeechToText fstt = SpeechToText();
   TextEditingController answerController = TextEditingController();
+  bool isListening = false;
 
   @override
   initState() {
     retrieveData();
     super.initState();
+    initFSTT();
 
     // Wait a second before saying the first word
     Future.delayed(const Duration(seconds: 1), () {
@@ -71,29 +74,30 @@ class _MainPage extends State<MainPage> {
         List<WordModel> secondHalf = _allWords.sublist(halfIndex);
 
         for (WordModel word in firstHalf) {
-          for (WordModel word in _allWords) {
-            _wordsList.add(WordsListModel(
-                languageSource: 'fr-FR',
-                languageAim: 'it-IT',
-                wordSource: word.wordFR,
-                wordAim: word.wordIT));
-          }
+          _wordsList.add(WordsListModel(
+              languageSource: 'fr-FR',
+              languageAim: 'it-IT',
+              wordSource: word.wordFR,
+              wordAim: word.wordIT));
         }
 
         for (WordModel word in secondHalf) {
-          for (WordModel word in _allWords) {
-            _wordsList.add(WordsListModel(
-                languageSource: 'it-IT',
-                languageAim: 'fr-FR',
-                wordSource: word.wordIT,
-                wordAim: word.wordFR));
-          }
+          _wordsList.add(WordsListModel(
+              languageSource: 'it-IT',
+              languageAim: 'fr-FR',
+              wordSource: word.wordIT,
+              wordAim: word.wordFR));
         }
         break;
     }
 
     _wordsList.shuffle();
     wordsList = _wordsList;
+  }
+
+  initFSTT() async {
+    await fstt.initialize();
+    setState(() {});
   }
 
   Container getStateIcon(String state) {
@@ -159,11 +163,35 @@ class _MainPage extends State<MainPage> {
         .then((e) => setState(() {
               currentState = 'listening';
             }));
+
+    listeningAnswer();
   }
 
-  listeningAnswer() {}
+  listeningAnswer() async {
+    print('is listening : $isListening');
+
+    if (!isListening) {
+      await fstt.listen(onResult: setAnswer);
+      setState(() {});
+    }
+
+    Future.delayed(const Duration(seconds: 5), () {
+      print('sending answer');
+      sendAnswer();
+    });
+  }
+
+  setAnswer(SpeechRecognitionResult result) {
+    print('setting answer');
+    setState(() {
+      print('controller : ${answerController.text}');
+      print('result : ${result.recognizedWords}');
+      answerController.text = result.recognizedWords;
+    });
+  }
 
   sendAnswer() {
+    print('send answer : ${answerController.text}');
     setState(() {
       if (answerController.text == wordsList[wordListIndex].wordAim) {
         currentState = 'rigth';
@@ -182,6 +210,10 @@ class _MainPage extends State<MainPage> {
     });
   }
 
+  stopListening() async {
+    await fstt.stop();
+  }
+
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
@@ -196,6 +228,7 @@ class _MainPage extends State<MainPage> {
               actions: <Widget>[
                 TextButton(
                     onPressed: () {
+                      stopListening();
                       Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(
@@ -234,10 +267,10 @@ class _MainPage extends State<MainPage> {
                                     });
                                   },
                                   icon: const Icon(Icons.arrow_back)),
-                          Container(
+                          SizedBox(
                               width: screenWidth * 0.7,
-                              alignment: Alignment.center,
                               child: Text(
+                                textAlign: TextAlign.center,
                                 wordsList[wordListIndex].wordSource,
                                 style: const TextStyle(
                                     fontSize: 30, fontWeight: FontWeight.bold),
@@ -293,6 +326,7 @@ class _MainPage extends State<MainPage> {
                         width: screenWidth * 0.5,
                         height: screenWidth * 0.25,
                         child: TextFormField(
+                          controller: answerController,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                               fontSize: 20, fontStyle: FontStyle.italic),

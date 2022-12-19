@@ -4,7 +4,6 @@ import 'package:app_italien/pages/lists.page.dart';
 import 'package:app_italien/pages/main.page.dart';
 import 'package:app_italien/services/file.service.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
