@@ -1,6 +1,7 @@
 // import 'package:app_italien/models/list.model.dart';
 import 'package:app_italien/models/word.model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class MainPage extends StatefulWidget {
   final List<WordModel> listWords;
@@ -21,9 +22,12 @@ class _MainPage extends State<MainPage> {
   int index = 0;
   // faire un cache pour le last random mot
 
+  FlutterTts ftts = FlutterTts();
+
   @override
   initState() {
     retrieveData();
+    // fttsSetup();
     super.initState();
   }
 
@@ -69,6 +73,25 @@ class _MainPage extends State<MainPage> {
     return '';
   }
 
+  Future<dynamic> _getLanguages() async => await ftts.getLanguages;
+  Future<dynamic> _getEngines() async => await ftts.getEngines;
+
+  fttsSetup() {
+    var languages = _getLanguages();
+    var engines = _getEngines();
+  }
+
+  speak() async {
+    await ftts.setLanguage("it-IT");
+    await ftts.setVolume(1.0);
+    var result = await ftts.speak("Hello World, this is Flutter Campus.");
+    if (result == 1) {
+      //speaking
+    } else {
+      //not speaking
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
@@ -100,7 +123,9 @@ class _MainPage extends State<MainPage> {
                     fontSize: 14,
                   )),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  speak();
+                },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: const Color(0xFFFFFFFF),
                   backgroundColor: const Color(0xFF575757),
