@@ -1,7 +1,8 @@
-import 'package:app_italien/models/list.model.dart';
-import 'package:app_italien/models/word.model.dart';
-import 'package:app_italien/services/file.service.dart';
 import 'package:flutter/material.dart';
+
+import '../models/list.model.dart';
+import '../models/word.model.dart';
+import '../services/file.service.dart';
 
 class ListsPage extends StatefulWidget {
   const ListsPage({super.key});
@@ -13,14 +14,13 @@ class ListsPage extends StatefulWidget {
 class _ListPage extends State<ListsPage> {
   final FileService _fileService = FileService();
 
-  //SEE TO UPDATE THIS PART
+  // SEE TO UPDATE THIS PART
   ListModel _currentList = ListModel(
       listName: 'listName',
       listWords: [WordModel(wordFR: 'wordFR', wordIT: 'wordIT')]);
   List<ListModel> _lists = [];
   bool newList = true;
 
-  //LAST THING DONES
   TextEditingController listNameController = TextEditingController();
   Map<int, Map<String, TextEditingController>> wordsControllers = {};
 
@@ -32,13 +32,15 @@ class _ListPage extends State<ListsPage> {
   double screenHeight = 0;
   double screenWidth = 0;
 
+  ScrollController listScrollController = ScrollController();
+
   @override
   initState() {
     getLists();
     super.initState();
   }
 
-  //LOADING METHODS
+  // LOADING METHODS
 
   getLists() async {
     List<ListModel> loadedList = [];
@@ -61,7 +63,7 @@ class _ListPage extends State<ListsPage> {
   }
 
   setControllers() {
-    //Set the words in each controller text
+    // Set the words in each controller text
     Map<int, Map<String, TextEditingController>> _wordsControllers = {};
 
     _currentList.listWords.asMap().forEach((i, word) {
@@ -82,7 +84,7 @@ class _ListPage extends State<ListsPage> {
     wordsControllers = _wordsControllers;
   }
 
-  //BUTTONS METHODS
+  // BUTTONS METHODS
 
   createNewList() {
     newList = true;
@@ -100,11 +102,11 @@ class _ListPage extends State<ListsPage> {
   }
 
   addNewLine() {
-    //First, we adding a new entry on the list so inputs will appears in template
+    // First, we adding a new entry on the list so inputs will appears in template
     _currentList.listWords
         .add(WordModel(wordFR: 'newWordFR', wordIT: 'newWordIT'));
 
-    //Then we adding new controllers that will be bind to the new inputs
+    // Then we adding new controllers that will be bind to the new inputs
     int i = wordsControllers.length;
 
     TextEditingController textEditingControllerFR =
@@ -137,7 +139,7 @@ class _ListPage extends State<ListsPage> {
       listToSave.listWords.add(WordModel(wordFR: wordFR, wordIT: wordIT));
     }
 
-    //On vérifie si la liste existe déjà, si oui on la supprime avant de l'ajouter
+    // Check if list already exist, if so, we need to delete it before adding it
     int index =
         _lists.indexWhere((list) => list.listName == listToSave.listName);
     if (index != -1) {
@@ -150,7 +152,7 @@ class _ListPage extends State<ListsPage> {
     newList = false;
   }
 
-  //DROPDOWN METHODS
+  // DROPDOWN METHODS
 
   List<DropdownMenuItem<String>> get _dropdownMenuItems {
     List<DropdownMenuItem<String>> items = [];
@@ -161,10 +163,17 @@ class _ListPage extends State<ListsPage> {
     return items;
   }
 
-  void dropdownOnChanged(String listName) {
+  dropdownOnChanged(String listName) {
     _currentList =
         _lists.where((element) => element.listName == listName).first;
     setControllers();
+  }
+
+  jumpToBottom() {
+    if (listScrollController.hasClients) {
+      final position = listScrollController.position.maxScrollExtent;
+      listScrollController.jumpTo(position);
+    }
   }
 
   @override
@@ -208,6 +217,7 @@ class _ListPage extends State<ListsPage> {
                 Expanded(
                     child: ListView.builder(
                         itemCount: _currentList.listWords.length,
+                        controller: listScrollController,
                         itemBuilder: (BuildContext context, index) {
                           return Row(
                             children: [
@@ -263,6 +273,7 @@ class _ListPage extends State<ListsPage> {
                           onPressed: () {
                             setState(() {
                               addNewLine();
+                              jumpToBottom();
                             });
                           },
                           icon: const Icon(Icons.add_circle_outline)),

@@ -8,7 +8,7 @@
     </queries>
 
    <application
-        android:label="app_italien"
+        android:label="Imparare"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

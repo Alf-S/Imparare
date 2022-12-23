@@ -27,8 +27,8 @@ class _HomePage extends State<HomePage> {
 
   @override
   initState() {
-    getLists();
     setIconsMap();
+    loadPage();
     super.initState();
   }
 
@@ -89,6 +89,10 @@ class _HomePage extends State<HomePage> {
     wordsList = _wordsList;
   }
 
+  loadPage() {
+    getLists();
+  }
+
   @override
   Widget build(BuildContext context) {
     screenHeight = MediaQuery.of(context).size.height;
@@ -99,7 +103,20 @@ class _HomePage extends State<HomePage> {
         home: Scaffold(
             appBar: AppBar(
                 title: const Text('HomePage'),
-                backgroundColor: const Color(0xFF009247)),
+                backgroundColor: const Color(0xFF009247),
+                actions: <Widget>[
+                  TextButton(
+                      onPressed: () {
+                        loadPage();
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFFFFFFFF),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: const Icon(Icons.refresh)),
+                ]),
             body: Column(
               children: [
                 Container(

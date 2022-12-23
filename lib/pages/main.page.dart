@@ -30,18 +30,26 @@ class _MainPage extends State<MainPage> {
   final SpeechToText fstt = SpeechToText();
   TextEditingController answerController = TextEditingController();
   bool isListening = false;
+  bool isPaused = false;
+
+  Color playIconColor = const Color(0xFF009247);
+  Color pauseIconColor = const Color(0xFF575757);
 
   @override
   initState() {
-    retrieveData();
     super.initState();
+
+    retrieveData();
+    initFTSS();
     initFSTT();
 
-    // Wait a second before saying the first word
+    // Wait a second before start exercice
     Future.delayed(const Duration(seconds: 1), () {
-      sayWord();
+      startExerciceWrap();
     });
   }
+
+  // LOADING METHODS
 
   retrieveData() {
     List<WordModel> _allWords = widget.listWords;
@@ -95,10 +103,20 @@ class _MainPage extends State<MainPage> {
     wordsList = _wordsList;
   }
 
+  initFTSS() async {
+    await ftts.setIosAudioCategory(IosTextToSpeechAudioCategory.playback,
+        [IosTextToSpeechAudioCategoryOptions.defaultToSpeaker]);
+    await ftts.setSpeechRate(0.45);
+    await ftts.setVolume(1.0);
+    await ftts.setPitch(1);
+  }
+
   initFSTT() async {
     await fstt.initialize();
     setState(() {});
   }
+
+  // LAYOUTING METHODS
 
   Container getStateIcon(String state) {
     const Color col_flagGreen = Color(0xFF009247);
@@ -143,75 +161,163 @@ class _MainPage extends State<MainPage> {
         child: Icon(size: 50, displayedIcon, color: const Color(0xFFFFFFFF)));
   }
 
-  previousWord() {
-    wordListIndex--;
+  // FTTS METHODS
+
+  layoutFTTS() {
+    answerController.text = "";
+    currentState = 'speaking';
+
+    setState(() {});
   }
 
-  nextWord() {
-    wordListIndex++;
-  }
-
-  sayWord() async {
-    setState(() {
-      currentState = 'speaking';
-    });
-
-    await ftts.setLanguage(wordsList[wordListIndex].languageSource);
-    await ftts.awaitSpeakCompletion(true);
-    await ftts
-        .speak(wordsList[wordListIndex].wordSource)
-        .then((e) => setState(() {
-              currentState = 'listening';
-            }));
-
-    listeningAnswer();
-  }
-
-  listeningAnswer() async {
-    print('is listening : $isListening');
-
-    if (!isListening) {
-      await fstt.listen(onResult: setAnswer);
-      setState(() {});
+  playFTTS() async {
+    if (!isPaused) {
+      await ftts.setLanguage(wordsList[wordListIndex].languageSource);
+      await ftts.awaitSpeakCompletion(true);
     }
 
-    Future.delayed(const Duration(seconds: 5), () {
-      print('sending answer');
-      sendAnswer();
-    });
+    if (!isPaused) {
+      await ftts
+          .speak(wordsList[wordListIndex].wordSource)
+          .then((e) => setState(() {
+                currentState = 'listening';
+              }));
+    }
   }
 
-  setAnswer(SpeechRecognitionResult result) {
-    print('setting answer');
-    setState(() {
-      print('controller : ${answerController.text}');
-      print('result : ${result.recognizedWords}');
-      answerController.text = result.recognizedWords;
-    });
+  stopFTTS() async {
+    await ftts.stop();
   }
 
-  sendAnswer() {
-    print('send answer : ${answerController.text}');
-    setState(() {
-      if (answerController.text == wordsList[wordListIndex].wordAim) {
-        currentState = 'rigth';
-        answerController.text = "";
-        Future.delayed(const Duration(seconds: 1), () {
-          nextWord();
-          sayWord();
+  // FSTT METHODS
+
+  layoutFSTT() {
+    answerController.text = "";
+    currentState = 'listening';
+
+    setState(() {});
+  }
+
+  playFSTT() async {
+    if (!isListening) {
+      await fstt.listen(
+          onResult: getFSTT, localeId: wordsList[wordListIndex].languageAim);
+      setState(() {});
+    }
+  }
+
+  getFSTT(SpeechRecognitionResult result) {
+    if (!isPaused) {
+      answerController.text = result.recognizedWords.toLowerCase();
+      setState(() {});
+    }
+  }
+
+  stopFSTT() async {
+    await fstt.stop();
+  }
+
+  // EXERCICE METHODS
+
+  startExerciceWrap() {
+    startExercice();
+  }
+
+  startExercice() async {
+    if (!isPaused) {
+      if (wordListIndex < wordsList.length) {
+        await layoutFTTS();
+        await playFTTS();
+        await stopFTTS();
+
+        await layoutFSTT();
+        await playFSTT();
+
+        Future.delayed(const Duration(seconds: 5), () async {
+          await stopFSTT();
+          if (!isPaused) {
+            validateExercice();
+          }
         });
       } else {
-        currentState = 'wrong';
-        answerController.text = "";
+        endExercice();
+      }
+    }
+  }
+
+  stopExercice() {
+    stopFTTS();
+    stopFSTT();
+
+    answerController.text = "";
+    isPaused = true;
+  }
+
+  layoutValidateExercice() {
+    setState(() {
+      answerController.text == wordsList[wordListIndex].wordAim
+          ? currentState = 'rigth'
+          : currentState = 'wrong';
+    });
+  }
+
+  validateExercice() async {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (!isPaused) {
+        layoutValidateExercice();
+
         Future.delayed(const Duration(seconds: 1), () {
-          sayWord();
+          if (answerController.text == wordsList[wordListIndex].wordAim) {
+            wordListIndex++;
+          }
+
+          startExercice();
         });
       }
     });
   }
 
-  stopListening() async {
-    await fstt.stop();
+  endExercice() {
+    pause();
+  }
+
+  // BUTTONS METHODS
+
+  previous() {
+    stopExercice();
+
+    wordListIndex--;
+
+    startExercice();
+  }
+
+  next() {
+    stopExercice();
+
+    wordListIndex++;
+
+    startExercice();
+  }
+
+  play() {
+    isPaused = false;
+
+    playIconColor = const Color(0xFF009247);
+    pauseIconColor = const Color(0xFF575757);
+    setState(() {});
+
+    startExercice();
+  }
+
+  pause() {
+    stopExercice();
+
+    if (isPaused) {
+      currentState = 'waiting';
+      playIconColor = const Color(0xFF575757);
+      pauseIconColor = const Color(0xFFCD212A);
+      setState(() {});
+    }
   }
 
   @override
@@ -228,7 +334,7 @@ class _MainPage extends State<MainPage> {
               actions: <Widget>[
                 TextButton(
                     onPressed: () {
-                      stopListening();
+                      stopExercice();
                       Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(
@@ -248,73 +354,71 @@ class _MainPage extends State<MainPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          wordListIndex == 0
-                              ? IconButton(
-                                  iconSize: 35,
-                                  color: const Color(0xFFA7A7A7),
-                                  onPressed: () {
-                                    setState(() {
-                                      null;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.arrow_back))
-                              : IconButton(
-                                  iconSize: 35,
-                                  color: const Color(0xFF575757),
-                                  onPressed: () {
-                                    setState(() {
-                                      previousWord();
-                                    });
-                                  },
-                                  icon: const Icon(Icons.arrow_back)),
+                          // wordListIndex == 0
+                          //     ? IconButton(
+                          //         iconSize: 35,
+                          //         color: const Color(0xFFA7A7A7),
+                          //         onPressed: () {
+                          //           setState(() {
+                          //             null;
+                          //           });
+                          //         },
+                          //         icon: const Icon(Icons.arrow_back))
+                          //     : IconButton(
+                          //         iconSize: 35,
+                          //         color: const Color(0xFF575757),
+                          //         onPressed: () {
+                          //           previous();
+                          //         },
+                          //         icon: const Icon(Icons.arrow_back)),
                           SizedBox(
                               width: screenWidth * 0.7,
                               child: Text(
                                 textAlign: TextAlign.center,
-                                wordsList[wordListIndex].wordSource,
+                                wordListIndex < wordsList.length
+                                    ? wordsList[wordListIndex].wordSource
+                                    : '...',
                                 style: const TextStyle(
                                     fontSize: 30, fontWeight: FontWeight.bold),
                               )),
-                          wordListIndex == wordsList.length - 1
-                              ? IconButton(
-                                  iconSize: 35,
-                                  color: const Color(0xFFA7A7A7),
-                                  onPressed: () {
-                                    setState(() {
-                                      null;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.arrow_forward))
-                              : IconButton(
-                                  iconSize: 35,
-                                  color: const Color(0xFF575757),
-                                  onPressed: () {
-                                    setState(() {
-                                      nextWord();
-                                    });
-                                  },
-                                  icon: const Icon(Icons.arrow_forward)),
+                          // wordListIndex == wordsList.length - 1
+                          //     ? IconButton(
+                          //         iconSize: 35,
+                          //         color: const Color(0xFFA7A7A7),
+                          //         onPressed: () {
+                          //           setState(() {
+                          //             null;
+                          //           });
+                          //         },
+                          //         icon: const Icon(Icons.arrow_forward))
+                          //     : IconButton(
+                          //         iconSize: 35,
+                          //         color: const Color(0xFF575757),
+                          //         onPressed: () {
+                          //           next();
+                          //         },
+                          //         icon: const Icon(Icons.arrow_forward)),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                              iconSize: 35,
-                              color: const Color(0xFF575757),
-                              onPressed: () {
-                                setState(() {});
-                              },
-                              icon: const Icon(Icons.play_arrow)),
-                          IconButton(
-                              iconSize: 35,
-                              color: const Color(0xFF575757),
-                              onPressed: () {
-                                setState(() {});
-                              },
-                              icon: const Icon(Icons.pause)),
-                        ],
-                      ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      //   children: [
+                      //     IconButton(
+                      //         iconSize: 35,
+                      //         color: playIconColor,
+                      //         onPressed: () {
+                      //           play();
+                      //         },
+                      //         icon: const Icon(Icons.play_arrow)),
+                      //     IconButton(
+                      //         iconSize: 35,
+                      //         color: pauseIconColor,
+                      //         onPressed: () {
+                      //           pause();
+                      //         },
+                      //         icon: const Icon(Icons.pause)),
+                      //   ],
+                      // ),
                     ]),
               ),
               Expanded(
