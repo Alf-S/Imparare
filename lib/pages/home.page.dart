@@ -1,9 +1,13 @@
-import 'package:app_italien/models/list.model.dart';
-import 'package:app_italien/models/word.model.dart';
-import 'package:app_italien/pages/lists.page.dart';
-import 'package:app_italien/pages/main.page.dart';
-import 'package:app_italien/services/file.service.dart';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
+import '../models/list.model.dart';
+import '../models/word.model.dart';
+import '../services/file.service.dart';
+import 'lists.page.dart';
+import 'main.page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -27,19 +31,20 @@ class _HomePage extends State<HomePage> {
 
   @override
   initState() {
-    setIconsMap();
-    loadPage();
     super.initState();
+
+    setIconsMap();
+    getLists();
+
+    setState(() {});
   }
 
   getLists() async {
     List<ListModel> loadedList = [];
     List fileLists = await _fileService.readFile();
 
-    if (fileLists.isNotEmpty) {
-      for (var list in fileLists) {
-        loadedList.add(ListModel.fromJson(list));
-      }
+    for (var list in fileLists) {
+      loadedList.add(ListModel.fromJson(list));
     }
 
     setState(() {
@@ -89,8 +94,12 @@ class _HomePage extends State<HomePage> {
     wordsList = _wordsList;
   }
 
-  loadPage() {
-    getLists();
+  getFileFromLocal() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      _fileService.moveFile(File(result.files.single.path!));
+    }
   }
 
   @override
@@ -99,23 +108,30 @@ class _HomePage extends State<HomePage> {
     screenWidth = MediaQuery.of(context).size.width;
 
     return MaterialApp(
-        title: 'App translate',
+        title: 'Imparare',
         home: Scaffold(
             appBar: AppBar(
                 title: const Text('HomePage'),
                 backgroundColor: const Color(0xFF009247),
                 actions: <Widget>[
-                  TextButton(
+                  IconButton(
+                      color: Colors.white,
                       onPressed: () {
-                        loadPage();
+                        setState(() {
+                          getFileFromLocal();
+                        });
                       },
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFFFFFFFF),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                      ),
-                      child: const Icon(Icons.refresh)),
+                      icon: const Icon(Icons.upload_file)),
+                  IconButton(
+                      color: Colors.white,
+                      onPressed: () {
+                        Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => ListsPage(lists: _lists)))
+                            .then((value) => getLists());
+                      },
+                      icon: const Icon(Icons.settings_suggest))
                 ]),
             body: Column(
               children: [
@@ -176,25 +192,49 @@ class _HomePage extends State<HomePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const ListsPage()));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: const Color(0xFFFFFFFF),
-                            backgroundColor: const Color(0xFF009247),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                          child: const Text(
-                            "Lists",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
+                        checkedCount > 0
+                            ? ElevatedButton(
+                                onPressed: () {
+                                  // retrieveData();
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) => MainPage(
+                                  //             listWords: wordsList,
+                                  //             startingLanguage:
+                                  //                 icons[iconIndex]!
+                                  //                     .entries
+                                  //                     .first
+                                  //                     .key)));
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: const Color(0xFFFFFFFF),
+                                  backgroundColor: const Color(0xFF009247),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Leçons",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              )
+                            : ElevatedButton(
+                                onPressed: () {
+                                  null;
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: const Color(0xFFFFFFFF),
+                                  backgroundColor: const Color(0xFF575757),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Leçons",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
                         checkedCount > 0
                             ? ElevatedButton(
                                 onPressed: () {
@@ -218,7 +258,7 @@ class _HomePage extends State<HomePage> {
                                   ),
                                 ),
                                 child: const Text(
-                                  "Start",
+                                  "Exercices",
                                   style: TextStyle(fontSize: 16),
                                 ),
                               )
@@ -234,7 +274,7 @@ class _HomePage extends State<HomePage> {
                                   ),
                                 ),
                                 child: const Text(
-                                  "Start",
+                                  "Exercices",
                                   style: TextStyle(fontSize: 16),
                                 ),
                               ),

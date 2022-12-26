@@ -1,5 +1,16 @@
 [
     {
+        "listName": "Être / Essere",
+        "listWords": [
+            { "wordFR": "je suis", "wordIT": "sono" },
+            { "wordFR": "tu es", "wordIT": "sei" },
+            { "wordFR": "il est", "wordIT": "è" },
+            { "wordFR": "nous sommes", "wordIT": "siamo" },
+            { "wordFR": "vous êtes", "wordIT": "siete" },
+            { "wordFR": "ils sont", "wordIT": "sono" }
+        ]
+    },
+    {
         "listName": "Je suis / Sono",
         "listWords": [
             { "wordFR": "français", "wordIT": "francese" },
@@ -9,12 +20,11 @@
             { "wordFR": "fatigué", "wordIT": "stanco" },
             { "wordFR": "content", "wordIT": "contento" },
             { "wordFR": "contente", "wordIT": "contenta" },
-            { "wordFR": "étonné", "wordIT": "stupido" },
+            { "wordFR": "étonné", "wordIT": "stupito" },
             { "wordFR": "vieux", "wordIT": "vecchio" },
-            { "wordFR": "vieille", "wordIT": "vecchia" },
+            { "wordFR": "vielle", "wordIT": "vecchia" },
             { "wordFR": "désolé", "wordIT": "dispiaciuto" },
             { "wordFR": "malade", "wordIT": "ammalato" },
-            { "wordFR": "malade féminin", "wordIT": "ammalata" },
             { "wordFR": "je suis mal", "wordIT": "sto male" },
             { "wordFR": "intéressé", "wordIT": "interessato" },
             { "wordFR": "ça m'intéresse", "wordIT": "mi interessa" },

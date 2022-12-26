@@ -5,7 +5,8 @@ import '../models/word.model.dart';
 import '../services/file.service.dart';
 
 class ListsPage extends StatefulWidget {
-  const ListsPage({super.key});
+  final List<ListModel> lists;
+  const ListsPage({super.key, required this.lists});
 
   @override
   State<ListsPage> createState() => _ListPage();
@@ -15,11 +16,9 @@ class _ListPage extends State<ListsPage> {
   final FileService _fileService = FileService();
 
   // SEE TO UPDATE THIS PART
-  ListModel _currentList = ListModel(
-      listName: 'listName',
-      listWords: [WordModel(wordFR: 'wordFR', wordIT: 'wordIT')]);
   List<ListModel> _lists = [];
-  bool newList = true;
+  late ListModel _currentList;
+  bool newList = false;
 
   TextEditingController listNameController = TextEditingController();
   Map<int, Map<String, TextEditingController>> wordsControllers = {};
@@ -36,31 +35,17 @@ class _ListPage extends State<ListsPage> {
 
   @override
   initState() {
-    getLists();
     super.initState();
+
+    _lists = widget.lists;
+    _currentList = _lists[0];
+
+    setControllers();
+
+    setState(() {});
   }
 
   // LOADING METHODS
-
-  getLists() async {
-    List<ListModel> loadedList = [];
-    List fileLists = await _fileService.readFile();
-
-    if (fileLists.isNotEmpty) {
-      for (var list in fileLists) {
-        loadedList.add(ListModel.fromJson(list));
-      }
-      newList = false;
-    }
-
-    setState(() {
-      _lists = loadedList;
-      if (loadedList.isNotEmpty) {
-        _currentList = loadedList.last;
-      }
-      setControllers();
-    });
-  }
 
   setControllers() {
     // Set the words in each controller text
@@ -88,16 +73,16 @@ class _ListPage extends State<ListsPage> {
 
   createNewList() {
     newList = true;
-    _currentList = ListModel(
-        listName: 'newList',
-        listWords: [WordModel(wordFR: 'newWordFR', wordIT: 'newWordIT')]);
+    _currentList =
+        ListModel(listName: '', listWords: [WordModel(wordFR: '', wordIT: '')]);
     setControllers();
   }
 
   deleteCurrentList() {
     String currentListName = _currentList.listName;
     _lists.removeWhere((element) => element.listName == currentListName);
-    dropdownOnChanged(_lists.last.listName);
+    dropdownOnChanged(_lists.last
+        .listName); // Faire en sorte que si tout est effacé, revenir a l'affichage 'new list'
     saveLists();
   }
 
@@ -182,10 +167,10 @@ class _ListPage extends State<ListsPage> {
     screenWidth = MediaQuery.of(context).size.width;
 
     return MaterialApp(
-        title: 'App translate',
+        title: 'Imparare',
         home: Scaffold(
             appBar: AppBar(
-              title: const Text('ListPage'),
+              title: const Text('Modifications de listes'),
               backgroundColor: col_flagGreen,
               actions: <Widget>[
                 TextButton(

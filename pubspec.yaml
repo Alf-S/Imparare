@@ -35,7 +35,7 @@ dependencies:
   json_annotation: ^4.7.0
   flutter_tts: ^3.6.2
   speech_to_text: ^6.1.1
-
+  file_picker: ^5.2.4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -59,9 +59,6 @@ flutter_icons:
   ios: true
   image_path: assets/images/fr-it_icon.png
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
 # The following section is specific to Flutter packages.
 flutter:
 
@@ -72,14 +69,9 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/datas/stock.json
     - assets/images/fr_icon.png
     - assets/images/it_icon.png
-
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

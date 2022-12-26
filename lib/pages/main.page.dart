@@ -1,10 +1,11 @@
-import 'package:app_italien/models/word.model.dart';
-import 'package:app_italien/models/wordsList.model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
+import '../models/word.model.dart';
+import '../models/wordsList.model.dart';
 
 class MainPage extends StatefulWidget {
   final List<WordModel> listWords;
@@ -233,9 +234,9 @@ class _MainPage extends State<MainPage> {
         await layoutFSTT();
         await playFSTT();
 
-        Future.delayed(const Duration(seconds: 5), () async {
-          await stopFSTT();
+        Future.delayed(const Duration(seconds: 4), () async {
           if (!isPaused) {
+            await stopFSTT();
             validateExercice();
           }
         });
@@ -326,7 +327,7 @@ class _MainPage extends State<MainPage> {
     screenWidth = MediaQuery.of(context).size.width;
 
     return MaterialApp(
-        title: 'App translate',
+        title: 'Imparare',
         home: Scaffold(
             appBar: AppBar(
               title: const Text('MainPage'),
@@ -354,23 +355,23 @@ class _MainPage extends State<MainPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // wordListIndex == 0
-                          //     ? IconButton(
-                          //         iconSize: 35,
-                          //         color: const Color(0xFFA7A7A7),
-                          //         onPressed: () {
-                          //           setState(() {
-                          //             null;
-                          //           });
-                          //         },
-                          //         icon: const Icon(Icons.arrow_back))
-                          //     : IconButton(
-                          //         iconSize: 35,
-                          //         color: const Color(0xFF575757),
-                          //         onPressed: () {
-                          //           previous();
-                          //         },
-                          //         icon: const Icon(Icons.arrow_back)),
+                          wordListIndex == 0
+                              ? IconButton(
+                                  iconSize: 35,
+                                  color: const Color(0xFFA7A7A7),
+                                  onPressed: () {
+                                    setState(() {
+                                      null;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.arrow_back))
+                              : IconButton(
+                                  iconSize: 35,
+                                  color: const Color(0xFF575757),
+                                  onPressed: () {
+                                    previous();
+                                  },
+                                  icon: const Icon(Icons.arrow_back)),
                           SizedBox(
                               width: screenWidth * 0.7,
                               child: Text(
@@ -381,44 +382,44 @@ class _MainPage extends State<MainPage> {
                                 style: const TextStyle(
                                     fontSize: 30, fontWeight: FontWeight.bold),
                               )),
-                          // wordListIndex == wordsList.length - 1
-                          //     ? IconButton(
-                          //         iconSize: 35,
-                          //         color: const Color(0xFFA7A7A7),
-                          //         onPressed: () {
-                          //           setState(() {
-                          //             null;
-                          //           });
-                          //         },
-                          //         icon: const Icon(Icons.arrow_forward))
-                          //     : IconButton(
-                          //         iconSize: 35,
-                          //         color: const Color(0xFF575757),
-                          //         onPressed: () {
-                          //           next();
-                          //         },
-                          //         icon: const Icon(Icons.arrow_forward)),
+                          wordListIndex == wordsList.length - 1
+                              ? IconButton(
+                                  iconSize: 35,
+                                  color: const Color(0xFFA7A7A7),
+                                  onPressed: () {
+                                    setState(() {
+                                      null;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.arrow_forward))
+                              : IconButton(
+                                  iconSize: 35,
+                                  color: const Color(0xFF575757),
+                                  onPressed: () {
+                                    next();
+                                  },
+                                  icon: const Icon(Icons.arrow_forward)),
                         ],
                       ),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      //   children: [
-                      //     IconButton(
-                      //         iconSize: 35,
-                      //         color: playIconColor,
-                      //         onPressed: () {
-                      //           play();
-                      //         },
-                      //         icon: const Icon(Icons.play_arrow)),
-                      //     IconButton(
-                      //         iconSize: 35,
-                      //         color: pauseIconColor,
-                      //         onPressed: () {
-                      //           pause();
-                      //         },
-                      //         icon: const Icon(Icons.pause)),
-                      //   ],
-                      // ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                              iconSize: 35,
+                              color: playIconColor,
+                              onPressed: () {
+                                play();
+                              },
+                              icon: const Icon(Icons.play_arrow)),
+                          IconButton(
+                              iconSize: 35,
+                              color: pauseIconColor,
+                              onPressed: () {
+                                pause();
+                              },
+                              icon: const Icon(Icons.pause)),
+                        ],
+                      ),
                     ]),
               ),
               Expanded(
